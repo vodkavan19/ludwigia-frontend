@@ -7,7 +7,7 @@ import store, { persistor } from './redux/store';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import Theme from './theme';
+import Theme from '~/Theme';
 import App from '~/App';
 import '~/assets/scss/globals.scss';
 
