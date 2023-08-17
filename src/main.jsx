@@ -7,7 +7,7 @@ import store, { persistor } from './redux/store';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import App from '~/app';
+import App from '~/App';
 import '~/assets/scss/globals.scss';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
