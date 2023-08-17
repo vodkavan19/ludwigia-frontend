@@ -7,6 +7,7 @@ import store, { persistor } from './redux/store';
 
 import 'react-toastify/dist/ReactToastify.css';
 
+import Theme from './theme';
 import App from '~/App';
 import '~/assets/scss/globals.scss';
 
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <React.Fragment>
         <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-                <App />
+                <Theme>
+                    <App />
+                </Theme>
             </PersistGate>
         </Provider>
     </React.Fragment>
