@@ -41,9 +41,7 @@ function AddForm({ initValue, validateSchema, onCloseDialog }) {
                 })
             })
             .catch((err) => {
-                if (err.status !== 403) {
-                    toast.error(err.data.message, TOAST_STYLE)
-                }
+                if (err.status !== 403) toast.error(err.data.message, TOAST_STYLE)
             })
     }
 

@@ -81,7 +81,9 @@ function GenusManager() {
                 setList(res)
                 setFetching(false)
             })
-            .catch(() => navigate('/internal-server-error'));
+            .catch((err) => {
+                if (err.status !== 403) navigate('/internal-server-error')
+            }); 
 
         return () => {
             controler.abort();
