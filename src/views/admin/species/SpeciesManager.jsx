@@ -38,7 +38,7 @@ import useAxiosPrivate from '~/utils/axiosPrivate';
 import { getComparator, stableSort } from '~/utils/tableSort';
 import RouterBreadcrumbs from '~/components/ui/Breadcrumbs';
 import { TOAST_STYLE } from '~/components/ui/customToastify';
-import DetailModal from './detailModal';
+import DetailModal from './DetailModal';
 
 
 const BREADCRUMBS = [
