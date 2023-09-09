@@ -13,9 +13,16 @@ function PlantImageCard({ frameImage, dataImage, height }) {
             }}
         >
             {dataImage ? (
-                <Box component='img' src={dataImage} alt='' height='100%' />
+                <Box 
+                    component='img' src={dataImage} alt='' 
+                    height='100%' width='100%' 
+                    sx={{ objectFit: 'cover' }} 
+                />
             ) : (
-                <Skeleton variant="rectangular" width='100%' height='100%' />
+                <Skeleton 
+                    variant="rectangular" 
+                    width='100%' height='100%' 
+                />
             )}
             <Box
                 component='img' src={frameImage} alt=''
