@@ -46,6 +46,7 @@ function Reference({ defaultValues, onStepChange, editId, fileData }) {
                     navigate('/admin/species')
                 })
                 .catch((err) => {
+                    onStepChange(0)
                     if (err.status !== 403) toast.error(err.data.message, TOAST_STYLE)
                 })
         } else {
@@ -57,6 +58,7 @@ function Reference({ defaultValues, onStepChange, editId, fileData }) {
                     navigate('/admin/species')
                 })
                 .catch((err) => {
+                    onStepChange(0)
                     if (err.status !== 403) toast.error(err.data.message, TOAST_STYLE)
                 })
         }
