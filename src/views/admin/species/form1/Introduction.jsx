@@ -13,7 +13,7 @@ import { buildFormData } from "~/utils/buildFormData";
 import { toast } from "react-toastify";
 import { TOAST_STYLE } from "~/components/ui/customToastify";
 import { useSelector } from "react-redux";
-import { forwardRef, useEffect, useImperativeHandle } from "react";
+import { useEffect } from "react";
 
 function Introduction({ genusOptions, defaultValues, editId, onStepChange, fileData }) {
     const authData = useSelector((state) => state.adminAuth.login?.data);

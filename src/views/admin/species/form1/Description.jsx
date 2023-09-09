@@ -10,7 +10,7 @@ import LoadingUpload from "~/components/ui/LoadingUpload";
 import { toast } from "react-toastify";
 import { TOAST_STYLE } from "~/components/ui/customToastify";
 import { removeAllTempEditorImages } from "~/redux/slices/tempImage.slice";
-import { forwardRef, useEffect, useImperativeHandle } from "react";
+import { useEffect } from "react";
 
 function Description({ defaultValues, onStepChange, fileData }) {
     const authData = useSelector((state) => state.adminAuth.login?.data);
