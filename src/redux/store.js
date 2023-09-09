@@ -4,16 +4,19 @@ import * as rp from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import adminAuthReducer from './slices/adminAuth.slice';
+import tempImageSlice from './slices/tempImage.slice';
 
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
-    whitelist: ['adminAuth']
-};
+    whitelist: ['adminAuth'],
+    blacklist: ['tempImageId']
+}
 
 const reducer = combineReducers({
-    adminAuth: adminAuthReducer
+    adminAuth: adminAuthReducer,
+    tempImageId: tempImageSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

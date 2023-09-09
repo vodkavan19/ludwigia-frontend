@@ -26,7 +26,6 @@ function Phytochemicals({ data, references }) {
 
     return (
         <Box 
-            mx={-4}
             sx={{ 
                 '& table, & th, & td': {
                     fontSize: 16,
@@ -106,7 +105,7 @@ function Phytochemicals({ data, references }) {
                                             <Box key={i}>{item}</Box>
                                         ))}
                                     </TableCell>
-                                    <TableCell align='center'>
+                                    <TableCell align='center' sx={{ backgroundColor: 'white !important' }}>
                                         <Box 
                                             component='img' width='100%'
                                             src={element.chemical_structure.fileUrl} alt=''

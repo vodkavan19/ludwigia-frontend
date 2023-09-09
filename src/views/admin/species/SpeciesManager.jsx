@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import Swal from 'sweetalert2';
@@ -38,6 +38,7 @@ import useAxiosPrivate from '~/utils/axiosPrivate';
 import { getComparator, stableSort } from '~/utils/tableSort';
 import RouterBreadcrumbs from '~/components/ui/Breadcrumbs';
 import { TOAST_STYLE } from '~/components/ui/customToastify';
+import DetailModal from './detailModal';
 
 
 const BREADCRUMBS = [
@@ -67,6 +68,7 @@ function SpeciesManager() {
 
     const axiosPrivate = useAxiosPrivate()
     const navigate = useNavigate()
+    const detailRef = useRef()
 
     const searchParam = useDebounce(searchValue, 500).trim();
     const emptyRows = page >= 0 ? Math.max(0, (1 + page) * rowsPerPage - list?.length) : 0;
@@ -289,9 +291,7 @@ function SpeciesManager() {
                                                             <span>
                                                                 <IconButton
                                                                     color="info"
-                                                                    onClick={() => navigate(`/admin/species/${row._id}`, {
-                                                                        state: { data: row, mode: 'readOnly' }
-                                                                    })}
+                                                                    onClick={() => detailRef.current.onOpenDialog(row)}
                                                                 >
                                                                     <DescriptionTwoTone />
                                                                 </IconButton>
@@ -304,7 +304,7 @@ function SpeciesManager() {
                                                                 <IconButton
                                                                     color="primary"
                                                                     onClick={() => navigate(`/admin/species/edit/${row._id}`, {
-                                                                        state: { data: row, mode: 'edit' }
+                                                                        state: { data: row }
                                                                     })}
                                                                 >
                                                                     <DriveFileRenameOutlineTwoTone />
@@ -363,6 +363,8 @@ function SpeciesManager() {
                     />
                 </Box>
             </Paper>
+
+            <DetailModal ref={detailRef}/>
         </Fragment>
     );
 }

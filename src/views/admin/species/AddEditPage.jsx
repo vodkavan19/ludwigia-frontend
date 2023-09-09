@@ -1,224 +1,194 @@
-import { Fragment } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import * as Yup from 'yup';
-
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
-import Speed from '@mui/icons-material/Speed';
-import ArrowBackOutlined from '@mui/icons-material/ArrowBackOutlined';
-
-import RouterBreadcrumbs from '~/components/ui/Breadcrumbs';
-import AddEditForm from './AddEditForm';
+import { Speed, UploadFileTwoTone } from "@mui/icons-material";
+import { Box, Button, Paper, Step, StepLabel, Stepper, Tooltip, Typography } from "@mui/material";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
+import { CustomStepConnector } from "~/components/themeMUI/customComponents";
+import RouterBreadcrumbs from "~/components/ui/Breadcrumbs";
+import axiosPublic from "~/utils/axiosPublic";
+import Introduction from "./form1/Introduction";
+import Microsurgery from "./form1/Microsurgery";
+import Description from "./form1/Description";
+import Distribution from "./form1/Distribution";
+import Phytochemical from "./form1/Phytochemical";
+import Benefit from "./form1/Benefit";
+import Reference from "./form1/Reference";
+import * as initValue from "./initValueForm"
+import Dropzone from "react-dropzone";
+import { acceptWordFile } from "~/utils/acceptFileField";
+import { convertDataSpeciesFile } from "~/utils/convertDataSpeciesFile";
+import mammoth from 'mammoth';
 
 const BREADCRUMBS = [
     { label: 'Trang chủ', link: '/admin/' },
     { label: 'Loài thực vật', link: '/admin/species' }
 ];
 
-function AddEditSpecies() {
+const STEPS = [
+    'Giới thiệu',
+    'Mô tả',
+    'Vi phẩu',
+    'Phân bố sinh thái',
+    'Hóa thực vật và hoạt tính sinh học',
+    'Bộ phận dùng và công dụng',
+    'Tài liệu tham khảo'
+];
+
+function AddEditPage() {
+    const [activeStep, setActiveStep] = useState(0);
+    const [genusOptions, setGenusOptions] = useState([])
+    const [selectFile, setSelectFile] = useState('')
+    const [selectFileData, setSelectFileData] = useState(null)
     const navigate = useNavigate();
     const { state } = useLocation();
     var currentData = state?.data;
-    const mode = state?.mode;
 
-    if(currentData) {
-        const micrData = currentData.microsurgerys.map((item, idx) => {
-            return { 
-                image: item.image,
-                caption: item.caption,
-                explains: item.explains.map(explain => {
-                    return { content: explain }; 
+    useEffect(() => {
+        const controler = new AbortController();
+
+        axiosPublic
+            .get('/genus/')
+            .then((res) => {
+                var options = res.map(
+                    ({ _id: value, sci_name: label }) => ({ value, label })
+                );
+                setGenusOptions(options);
+            })
+            .catch(() => navigate('/internal-server-error'));
+
+            return () => controler.abort();
+    }, [navigate])   
+
+    const generateDefaultValue = (initValue) => {
+        var defaultValue = {}
+        if(currentData) {
+            const keys = Object.keys(initValue)
+            keys.forEach(key => {
+                if(key === 'genus_ref') {
+                    defaultValue[key] = currentData[key]._id 
+                } else if(key === 'microsurgerys') {
+                    defaultValue[key] = currentData[key].map(item => {
+                        return {
+                            ...item,
+                            explains: item.explains.map(explain => {
+                                return { content: explain }; 
+                            })
+                        }
+                    })
+                } else {
+                    defaultValue[key] = currentData[key]
+                }
+            });
+        } else {
+            defaultValue = { ...initValue }
+        }
+        return defaultValue;
+    }
+
+    const renderStepContent = (step) => {
+        switch (step) {
+            case 0:
+                return (genusOptions.length != 0) && (
+                    <Introduction 
+                        genusOptions={genusOptions}
+                        defaultValues={generateDefaultValue(initValue.introduction)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.introduction)}
+                        editId={currentData?._id}
+                    />
+                );
+            case 1: 
+                return (
+                    <Description 
+                        defaultValues={generateDefaultValue(initValue.description)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.description)}
+                    />
+                );
+            case 2: 
+                return (
+                    <Microsurgery
+                        defaultValues={generateDefaultValue(initValue.microsurgery)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.microsurgery)}
+                    />
+                );
+            case 3: 
+                return (
+                    <Distribution
+                        defaultValues={generateDefaultValue(initValue.distribution)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.distribution)}
+                    />
+                );
+            case 4: 
+                return (
+                    <Phytochemical
+                        defaultValues={generateDefaultValue(initValue.phytochemical)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.phytochemical)}
+                    />
+                );
+            case 5: 
+                return (
+                    <Benefit
+                        defaultValues={generateDefaultValue(initValue.benefit)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.benefit)}
+                    />
+                );
+            case 6: 
+                return (
+                    <Reference
+                        defaultValues={generateDefaultValue(initValue.reference)}
+                        onStepChange={(val) => handleStepChange(val)}
+                        fileData={getFileDataByForm(initValue.reference)}
+                        editId={currentData?._id}
+                    />
+                );
+        }
+    }
+
+    const handleStepChange = (index) => {
+        setActiveStep(index);
+    }
+
+    const handleSpeciesWordFileChange = async (files) => {
+        const file = files[0];
+        setSelectFile(file)
+        const fileReader = new FileReader();
+        fileReader.onload = async function () {
+            await mammoth
+                .extractRawText({ arrayBuffer: this.result })
+                .then((result) => {
+                    const speciesData = convertDataSpeciesFile(result.value)
+                    setSelectFileData(speciesData)
                 })
-            }
-        })
-        currentData.microsurgerys = micrData;
+                .done();
+        };
+        fileReader.readAsArrayBuffer(file)
     }
 
-    const initValue = {
-        // INTRODUCTION FORM
-        genus_ref: currentData?.genus_ref._id || '',
-        sci_name: currentData?.sci_name || '',
-        author: currentData?.author || '',
-        debut_year: currentData?.debut_year || '',
-        avatar: currentData?.avatar || '',
-        other_name: currentData?.other_name || [{ name: '', reference: '' }],
-        vie_name: currentData?.vie_name || [{ name: '', reference: '' }],
-        family_description: currentData?.family_description || '',
-        takhtajan_system: {
-            kingdom: currentData?.takhtajan_system?.kingdom || { name: '', nomenclature: '', reference: '' },
-            division: currentData?.takhtajan_system?.division || { name: '', nomenclature: '', reference: '' },
-            layer: currentData?.takhtajan_system?.layer || { name: '', nomenclature: '', reference: '' },
-            order: currentData?.takhtajan_system?.order || { name: '', nomenclature: '', reference: '' },
-            family: currentData?.takhtajan_system?.family || { name: '', nomenclature: '', reference: '' },
-            genus: currentData?.takhtajan_system?.genus || { name: '', nomenclature: '', reference: '' },
-            species: currentData?.takhtajan_system?.species || { nomenclature: '', reference: '' }
-        },
-        // DESCRIPTION FORM
-        description: currentData?.description || '',
-        // MICROSURERY FROM
-        microsurgerys: currentData?.microsurgerys || [{ image: '', caption: '', explains: [{content: ''}] }],
-        // DISTRIBUTION FORM
-        distribution: currentData?.distribution || '',
-        // PHYTOCHEMICAL FORM
-        phytochemicals: currentData?.phytochemicals || [{
-            bio_active: '',
-            bio_reference: '',
-            chemical_group: '',
-            segment: '',
-            physical_properties: '',
-            spectrum: [],
-            chemical_structure: '',
-            pharma_effect: ''
-        }],
-        // BENEFIT FORM
-        benefits: currentData?.benefits || '',
-        // REFERENCES FORM
-        references: currentData?.references || [{ content: '', link: '' }]
+    const getFileDataByForm = (formProperty) => {
+        if(selectFileData !== null) {
+            var result = {};
+            const keys = Object.keys(formProperty)
+            keys.forEach(key => {
+                if (selectFileData.hasOwnProperty(key)) {
+                  result[key] = selectFileData[key];
+                }
+            });
+            return result;
+        }
     }
 
-    const validateSchema = Yup.object().shape({
-        // INTRODUCTION FORM
-        genus_ref: Yup.string().trim()
-            .required('Vui lòng chọn một trong các lựa chọn!'),
-        sci_name: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        author: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        debut_year: Yup.string().trim()
-            .max(4, 'Vui lòng nhập năm đúng định dạng!'),
-        avatar: Yup.mixed()
-            .test('required', 'Vui lòng chọn hình ảnh tải lên!', value => {
-                if (typeof value === 'object' && value.fileUrl) return true;
-                return value && value.length;
-            })
-            .test('fileSize', 'Dung lượng hình ảnh vượt quá 5 MB!', value => {
-                if (typeof value === 'object' && value.fileUrl) return true;
-                return value && (value[0].size <= 5 * 1024 * 1024)
-            }),
-        other_name: Yup.array()
-            .of(Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            })),
-        vie_name: Yup.array()
-            .of(Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            })),
-        family_description: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        takhtajan_system: Yup.object().shape({
-            kingdom: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            division: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            layer: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            order: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            family: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            genus: Yup.object().shape({
-                name: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            }),
-            species: Yup.object().shape({
-                nomenclature: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!')
-            })
-        }),
-        // DESCRIPTION FORM
-        description: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        // MICROSURERY FROM
-        microsurgerys: Yup.array()
-            .of(Yup.object().shape({
-                image: Yup.mixed()
-                    .test('required', 'Vui lòng chọn hình ảnh tải lên!', value => {
-                        if (typeof value === 'object' && value.fileUrl) return true;
-                        return value && value.length;
-                    })
-                    .test('fileSize', 'Dung lượng hình ảnh vượt quá 5 MB!', value => {
-                        if (typeof value === 'object' && value.fileUrl) return true;
-                        return value && (value[0].size <= 5 * 1024 * 1024)
-                    }),
-                caption: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-            })),
-        // DISTRIBUTION FORM
-        distribution: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        // PHYTOCHEMICAL FORM
-        phytochemicals: Yup.array()
-            .of(Yup.object().shape({
-                bio_active: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                chemical_group: Yup.string().trim(),
-                segment: Yup.string().trim(),
-                physical_properties: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                spectrum: Yup.array()
-                    .of(Yup.string().trim())
-                    .min(1, 'Vui lòng không để trống trường này!'),
-                chemical_structure: Yup.mixed()
-                    .test('required', 'Vui lòng chọn hình ảnh tải lên!', value => {
-                        if (typeof value === 'object' && value.fileUrl) return true;
-                        return value && value.length;
-                    })
-                    .test('fileSize', 'Dung lượng hình ảnh vượt quá 5 MB!', value => {
-                        if (typeof value === 'object' && value.fileUrl) return true;
-                        return value && (value[0].size <= 5 * 1024 * 1024)
-                    }),
-                pharma_effect: Yup.string().trim().trim()
-            })),
-        // BENEFIT FORM
-        benefits: Yup.string().trim()
-            .required('Vui lòng không để trống trường này!'),
-        // REFERENCES FORM
-        references: Yup.array()
-            .of(Yup.object().shape({
-                content: Yup.string().trim()
-                    .required('Vui lòng không để trống trường này!'),
-                link: Yup.string().trim()
-                    .url('Vui lòng nhập đúng định dạng một URL!')
-            }))
-    })
-
-    return (
+    return (  
         <Fragment>
-            <Box className="flex-between" alignItems="flex-end">
+            <Box className="flex-between" alignItems="center">
                 <Box>
                     <Typography variant="h5" fontWeight="700" gutterBottom>
                         {(currentData == null)
                             ? 'Thêm Loài thực vật'
-                            : (mode === 'edit')
-                                ? 'Chỉnh sửa Loài thực vật'
-                                : 'Chi tiết Loài thực vật'
+                            : 'Chỉnh sửa Loài thực vật'
                         }
                     </Typography>
                     <RouterBreadcrumbs
@@ -226,33 +196,73 @@ function AddEditSpecies() {
                         homeIcon={<Speed />}
                         currentPage={(currentData == null)
                             ? 'Thêm Loài thực vật'
-                            : (mode === 'edit')
-                                ? 'Chỉnh sửa Loài thực vật'
-                                : 'Chi tiết Loài thực vật'
+                            : 'Chỉnh sửa Loài thực vật'
                         }
                     />
                 </Box>
-                <Box mb={1}>
-                    <Button
-                        color='cancel'
-                        variant="contained"
-                        startIcon={<ArrowBackOutlined />}
-                        onClick={() => navigate('/admin/species')}
-                    >
-                        Trở lại
-                    </Button>
+                <Box className='flex-center'>
+                    {(selectFile instanceof File) && (
+                        <Box maxWidth={240} mr={1}>
+                            <Typography variant='caption' fontStyle='italic' fontWeight={600}>
+                                File đã chọn đễ đọc nội dung:
+                            </Typography>
+                            <Box display='flex' alignItems='center' justifyContent='end' color='text.accent1'>
+                                <Typography variant="body2" fontWeight={500} className='text-eclipse one-line'>
+                                    {selectFile.name.substring(0, selectFile.name.lastIndexOf("."))}
+                                </Typography>
+                                <Typography variant="body2" fontWeight={500} ml={0.125}>
+                                    {selectFile.name.substring(selectFile.name.lastIndexOf("."))}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    )}
+                    <Dropzone accept={acceptWordFile} onDrop={handleSpeciesWordFileChange}>
+                        {({ getRootProps, getInputProps }) => (
+                            <Box {...getRootProps()}>
+                                <input {...getInputProps()} />
+                                <Tooltip title={(selectFile instanceof File) && "Chọn lại File"} arrow>
+                                    <span>
+                                        <Button
+                                            variant="outlined" size="large"
+                                            startIcon={<UploadFileTwoTone />}
+                                            sx={{ 
+                                                boxShadow: 2, background: 'white',
+                                                '& .MuiButton-startIcon': { mx: 0 } 
+                                            }}
+                                        >
+                                            {!(selectFile instanceof File) && (
+                                                <Box component='span' ml={1}>Đọc nội dung File</Box>
+                                            )} 
+                                        </Button>
+                                    </span>
+                                </Tooltip>
+                            </Box>
+                        )}
+                    </Dropzone>
                 </Box>
             </Box>
-            <Paper sx={{ mt: 3, p: 2, pt: 3 }} elevation={4}>
-                <AddEditForm
-                    initValue={initValue}
-                    validateSchema={validateSchema}
-                    editItemId={currentData?._id}
-                    readOnlyMode={mode === 'readOnly'}
-                />
+            <Paper sx={{ mt: 1, p: 2 }} elevation={2}>
+                <Box mx={-2}>
+                    <Stepper
+                        alternativeLabel
+                        activeStep={activeStep}
+                        connector={<CustomStepConnector />}
+                    >
+                        {STEPS.map((label, idx) => (
+                            <Step key={idx}>
+                                <StepLabel /* onClick={() => handleStepChange(idx)}*/ >
+                                    {label}
+                                </StepLabel>
+                            </Step>
+                        ))}
+                    </Stepper>
+                </Box>
+                <Box mt={1}>
+                    {renderStepContent(activeStep)}
+                </Box>
             </Paper>
         </Fragment>
     );
 }
 
-export default AddEditSpecies;
+export default AddEditPage;

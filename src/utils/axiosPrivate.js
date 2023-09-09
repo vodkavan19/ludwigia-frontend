@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 
-import axios, { CancelToken } from 'axios';
+import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 
@@ -8,8 +8,6 @@ import {
     handleAdminLogout,
     handleRefreshToken
 } from '~/redux/slices/adminAuth.slice';
-
-const source = CancelToken.source();
 
 const useAxiosPrivate = () => {
     const auth = useSelector((state) => state.adminAuth.login?.data);

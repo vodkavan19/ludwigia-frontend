@@ -14,6 +14,7 @@ const keyWord = [
 
 export const convertDataSpeciesFile = (rawData) => {
     var exportData = {}
+
     const arrData = rawData.replaceAll('\t', '').split('\n').filter(item => {
         return item.trim() !== ''
     })

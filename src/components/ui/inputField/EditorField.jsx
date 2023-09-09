@@ -9,8 +9,11 @@ import ReportOutlined from '@mui/icons-material/ReportOutlined';
 import { getErrValidate } from '~/utils/getErrorValidateFrom';
 import { EditorFieldWrapper } from '~/components/themeMUI/customComponents';
 import Editor from 'ckeditor5-custom-build';
+import CustomUploadAdapter from '~/utils/customUploadAdapter';
+import { useDispatch } from 'react-redux';
 
 function EditorField(props) {
+    const dispatch = useDispatch()
     const {
         form, name,
         minHeight, readOnly, placeholder
@@ -24,6 +27,7 @@ function EditorField(props) {
         <Controller
             name={name}
             control={form.control}
+            defaultValue="<p></p>"
             render = {({ field }) => (
                 <Fragment>
                     <EditorFieldWrapper minHeight={minHeight} error={errorValidate}>
@@ -31,6 +35,11 @@ function EditorField(props) {
                             { ...field }
                             editor={Editor}
                             data={field.value}
+                            onReady={(editor) => {
+                                editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+                                    return new CustomUploadAdapter(loader, '/upload-editor/upload-image', dispatch);
+                                };
+                            }}
                             onChange={(e, editor) => {
                                 const data = editor.getData();
                                 field.onChange(data)

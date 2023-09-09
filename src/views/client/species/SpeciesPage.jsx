@@ -70,10 +70,12 @@ function SpeciesPage() {
                             </Box>
                             <Box id='phytochemicals'>
                                 <HeadContent mx={-4}>Hóa thực vật và hoạt tính sinh học</HeadContent>
-                                <Phytochemicals
-                                    data={species.phytochemicals}
-                                    references={species.references}
-                                />
+                                <Box mx={-4}>
+                                    <Phytochemicals
+                                        data={species.phytochemicals}
+                                        references={species.references}
+                                    />
+                                </Box>
                             </Box>
                             <Box id='used-parts' pb={8}>
                                 <HeadContent mx={-4} mb={4}>Bộ phận dùng và công dụng</HeadContent>

@@ -23,7 +23,7 @@ function App() {
                         <Route path='/admin/' element={<Views.Dashboard />} />
                         <Route path='/admin/user' element={<Views.UserManager />} />
                         <Route path='/admin/genus' element={<Views.GenusManager />} />
-                            <Route path='/admin/species' element={<Views.SpeciesManager />} />
+                        <Route path='/admin/species' element={<Views.SpeciesManager />} />
                         <Route path='/admin/species/:id' element={<Views.AddEditSpecies />} />
                         <Route path='/admin/species/add' element={<Views.AddEditSpecies />} />
                         <Route path='/admin/species/edit/:id' element={<Views.AddEditSpecies />} />
