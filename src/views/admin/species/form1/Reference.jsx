@@ -43,6 +43,7 @@ function Reference({ defaultValues, onStepChange, editId, fileData }) {
                 .then((res) => {
                     form.reset()
                     onStepChange(0)
+                    navigate('/admin/species')
                 })
                 .catch((err) => {
                     if (err.status !== 403) toast.error(err.data.message, TOAST_STYLE)
