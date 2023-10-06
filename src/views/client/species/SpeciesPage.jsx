@@ -1,18 +1,16 @@
 import { Fragment, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-
-import Box from '@mui/material/Box';
-
-import axiosPublic from '~/utils/axiosPublic';
 import HeadName from '~/components/ui/HeadName';
-import SpeciesSidebar from './Sidebar';
+import axiosPublic from '~/utils/axiosPublic';
+import Box from '@mui/material/Box';
 import HeadContent from './HeadContent';
-import Intro from './content/Intro';
-import Description from './content/Description';
-import Microsurgery from './content/Microsurgery';
-import Distribution from './content/Distribution';
-import Phytochemicals from './content/Phytochemicals';
+import SpeciesSidebar from './Sidebar';
 import Benifits from './content/Benefits';
+import Description from './content/Description';
+import Distribution from './content/Distribution';
+import Intro from './content/Intro';
+import Microsurgery from './content/Microsurgery';
+import Phytochemicals from './content/Phytochemicals';
 import References from './content/References';
 
 function SpeciesPage() {
@@ -35,9 +33,31 @@ function SpeciesPage() {
         }
     }, [id, navigate])
 
+    const descriptionWithCaptionImage = (htmlStr) => {
+        const imgPattern = /<img\s+[^>]*class\s*=\s*["']image_resized["'][^>]*>/g
+        var index = 0;
+        const replaceImg = htmlStr
+            .replace(/<p>/g, '<div>')
+            .replace(/<\/p>/g, '</div>')
+            .replace(imgPattern, (imgTag) => {
+                index += 1
+                const src = imgTag.match(/src=["']([^"']+)["']/);
+                const style = imgTag.match(/style=["']([^"']+)["']/);
+                return (
+                    `<figure style="${style ? style[1] : ''};">
+                        <img className="image_resized" src="${src ? src[1] : ''}" style="width: 100%;" alt='' />
+                        <figcaption>Hình ${index}</figcaption>
+                    </figure>`
+                )
+            }
+        )
+        console.log(replaceImg);
+        return replaceImg;
+    }
+
     return (
         <Box>
-            {species !== null && (
+            {species != null && (
                 <Fragment>
                     <HeadName
                         title={species.short_name}
@@ -53,7 +73,7 @@ function SpeciesPage() {
                             <Box id='description' pb={8}>
                                 <HeadContent mx={-4} mb={4}>Mô tả</HeadContent>
                                 <Description
-                                    data={species.description}
+                                    data={descriptionWithCaptionImage(species.description)}
                                     references={species.references}
                                 />
                             </Box>

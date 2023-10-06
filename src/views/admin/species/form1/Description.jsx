@@ -1,16 +1,16 @@
-import { MapOutlined } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import EditorField from "~/components/ui/inputField/EditorField";
-import useAxiosPrivate from "~/utils/axiosPrivate";
-import { VALIDATE_DESCRIPTION_FORM } from "../schemaValidation";
-import { yupResolver } from "@hookform/resolvers/yup";
-import LoadingUpload from "~/components/ui/LoadingUpload";
 import { toast } from "react-toastify";
+import LoadingUpload from "~/components/ui/LoadingUpload";
 import { TOAST_STYLE } from "~/components/ui/customToastify";
+import EditorField from "~/components/ui/inputField/EditorField";
 import { removeAllTempEditorImages } from "~/redux/slices/tempImage.slice";
-import { useEffect } from "react";
+import useAxiosPrivate from "~/utils/axiosPrivate";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { MapOutlined } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
+import { VALIDATE_DESCRIPTION_FORM } from "../schemaValidation";
 
 function Description({ defaultValues, onStepChange, fileData }) {
     const authData = useSelector((state) => state.adminAuth.login?.data);
@@ -39,7 +39,7 @@ function Description({ defaultValues, onStepChange, fileData }) {
                 admin: authData._id,
                 field: "description"
             })
-            .then((res) => {
+            .then(() => {
                 onStepChange(indexStep + 1);
                 dispatch(removeAllTempEditorImages())
             })

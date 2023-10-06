@@ -1,22 +1,22 @@
-import { Speed, UploadFileTwoTone } from "@mui/icons-material";
-import { Box, Button, Paper, Step, StepLabel, Stepper, Tooltip, Typography } from "@mui/material";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import mammoth from 'mammoth';
+import { Fragment, useEffect, useState } from "react";
+import Dropzone from "react-dropzone";
+import { useLocation, useNavigate } from "react-router";
 import { CustomStepConnector } from "~/components/themeMUI/customComponents";
 import RouterBreadcrumbs from "~/components/ui/Breadcrumbs";
+import { acceptWordFile } from "~/utils/acceptFileField";
 import axiosPublic from "~/utils/axiosPublic";
-import Introduction from "./form1/Introduction";
-import Microsurgery from "./form1/Microsurgery";
+import { convertDataSpeciesFile } from "~/utils/convertDataSpeciesFile";
+import { Speed, UploadFileTwoTone } from "@mui/icons-material";
+import { Box, Button, Paper, Step, StepLabel, Stepper, Tooltip, Typography } from "@mui/material";
+import Benefit from "./form1/Benefit";
 import Description from "./form1/Description";
 import Distribution from "./form1/Distribution";
+import Introduction from "./form1/Introduction";
+import Microsurgery from "./form1/Microsurgery";
 import Phytochemical from "./form1/Phytochemical";
-import Benefit from "./form1/Benefit";
 import Reference from "./form1/Reference";
 import * as initValue from "./initValueForm"
-import Dropzone from "react-dropzone";
-import { acceptWordFile } from "~/utils/acceptFileField";
-import { convertDataSpeciesFile } from "~/utils/convertDataSpeciesFile";
-import mammoth from 'mammoth';
 
 const BREADCRUMBS = [
     { label: 'Trang chủ', link: '/admin/' },
@@ -173,6 +173,7 @@ function AddEditPage() {
             var result = {};
             const keys = Object.keys(formProperty)
             keys.forEach(key => {
+                // eslint-disable-next-line no-prototype-builtins
                 if (selectFileData.hasOwnProperty(key)) {
                   result[key] = selectFileData[key];
                 }
@@ -250,7 +251,7 @@ function AddEditPage() {
                     >
                         {STEPS.map((label, idx) => (
                             <Step key={idx}>
-                                <StepLabel /* onClick={() => handleStepChange(idx)}*/ >
+                                <StepLabel /*onClick={() => handleStepChange(idx)}*/ >
                                     {label}
                                 </StepLabel>
                             </Step>

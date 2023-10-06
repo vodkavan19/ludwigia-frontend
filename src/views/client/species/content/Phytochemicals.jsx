@@ -24,7 +24,9 @@ function Phytochemicals({ data, references }) {
         return groups;  
     }, []);
 
-    return (
+    return (data.length === 1 && data[0].bio_active.toLowerCase() === 'chưa được công bố') 
+        ? (<Box textAlign='center' pb={6} mt={4}>Chưa được công bố</Box>)
+        : (
         <Box 
             sx={{ 
                 '& table, & th, & td': {

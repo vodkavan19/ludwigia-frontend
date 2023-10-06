@@ -1,24 +1,26 @@
 import { Fragment } from 'react';
-
-import Grid from '@mui/material/Unstable_Grid2';
+import ContentCollapse from '~/components/ui/ContentCollapse';
+import Quote from '~/components/ui/Quote';
+import ScienceName from '~/components/ui/ScienceName';
+import StringHasQuote from '~/components/ui/StringHasQuote';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
-import Quote from '~/components/ui/Quote';
-import StringHasQuote from '~/components/ui/StringHasQuote';
-import ScienceName from '~/components/ui/ScienceName';
+import Grid from '@mui/material/Unstable_Grid2';
 
 function Intro({ data }) {
+
     return (
         <Grid container columns={16} spacing={6}>
             <Grid xs={10}>
                 <Box display='flex' alignItems='center'>
                     <Typography color='text.accent1' fontWeight={700} mr={1}>Tên khoa học:</Typography>
-                    <Box><ScienceName name={data.sci_name} /></Box>
+                    <Box fontStyle='italic'><ScienceName name={data.sci_name} /></Box>
                 </Box>
                 <Box mt={2} display='flex'>
-                    <Typography color='text.accent1' fontWeight={700} mr={1.5}>Tên khác:</Typography>
-                    <Box display='flex' flexDirection='column'>
+                    <Typography color='text.accent1' fontWeight={700} mr={1.5} sx={{ whiteSpace: 'nowrap' }}>Tên khác:</Typography>
+                    <ContentCollapse 
+                        sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }} 
+                    >
                         {data.other_name.map((item, idx) => (
                             <Box key={idx}>
                                 <ScienceName name={item.name} />
@@ -30,10 +32,10 @@ function Intro({ data }) {
                                 )}
                             </Box>
                         ))}
-                    </Box>
+                    </ContentCollapse>
                 </Box>
                 <Box mt={2} display='flex'>
-                    <Typography color='text.accent1' component='span' fontWeight={700} mr={1}>
+                    <Typography color='text.accent1' component='span' fontWeight={700} mr={1} sx={{ whiteSpace: 'nowrap' }}>
                         Tên tiếng Việt:
                     </Typography>
                     <Box>

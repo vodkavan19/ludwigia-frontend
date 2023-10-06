@@ -1,21 +1,21 @@
-import { yupResolver } from "@hookform/resolvers/yup";
-import { ArrowCircleDownTwoTone, HighlightOffTwoTone, ScienceOutlined } from "@mui/icons-material";
-import { Box, Button, Divider, IconButton, Tooltip, Typography } from "@mui/material";
 import { Fragment, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import LoadingUpload from "~/components/ui/LoadingUpload";
+import { TOAST_STYLE } from "~/components/ui/customToastify";
 import EditorField from "~/components/ui/inputField/EditorField";
+import ImageField from "~/components/ui/inputField/ImageField";
 import InputField from "~/components/ui/inputField/InputField";
+import MultipleInputField from "~/components/ui/inputField/MultipleInputField";
 import useAxiosPrivate from "~/utils/axiosPrivate";
 import { buildFormData } from "~/utils/buildFormData";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { ArrowCircleDownTwoTone, HighlightOffTwoTone, ScienceOutlined } from "@mui/icons-material";
+import { Box, Button, Divider, IconButton, Tooltip, Typography } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
-import { VALIDATE_PHYTOCHEMICAL_FORM } from "../schemaValidation";
-import MultipleInputField from "~/components/ui/inputField/MultipleInputField";
-import ImageField from "~/components/ui/inputField/ImageField";
-import LoadingUpload from "~/components/ui/LoadingUpload";
-import { toast } from "react-toastify";
-import { TOAST_STYLE } from "~/components/ui/customToastify";
 import * as initValue from "../initValueForm"
+import { VALIDATE_PHYTOCHEMICAL_FORM } from "../schemaValidation";
 
 function Phytochemical({ defaultValues, onStepChange, fileData }) {
     const authData = useSelector((state) => state.adminAuth.login?.data);
@@ -64,7 +64,7 @@ function Phytochemical({ defaultValues, onStepChange, fileData }) {
             .post('/species/phytochemical', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
-            .then((res) => onStepChange(indexStep + 1))
+            .then(() => onStepChange(indexStep + 1))
             .catch((err) => {
                 if (err.status !== 403) toast.error(err.data.message, TOAST_STYLE)
             })
@@ -118,8 +118,8 @@ function Phytochemical({ defaultValues, onStepChange, fileData }) {
                         </Box>
                         <Grid flex={1} container spacing={2} columns={16} >
                             <Grid xs={10} container>
-                                <Grid xs={13}>
-                                    <InputField
+                                <Grid xs={16}>
+                                    <EditorField
                                         form={form}
                                         name={`phytochemicals.${index}.bio_active`}
                                         label='Hoạt chất'
@@ -133,14 +133,14 @@ function Phytochemical({ defaultValues, onStepChange, fileData }) {
                                         label='TLTK số'
                                     />
                                 </Grid>
-                                <Grid xs={8}>
+                                <Grid xs>
                                     <InputField
                                         form={form}
                                         name={`phytochemicals.${index}.chemical_group`}
                                         label='Hoạt chất thuộc nhóm'
                                     />
                                 </Grid>
-                                <Grid xs={8}>
+                                <Grid xs>
                                     <InputField
                                         form={form}
                                         name={`phytochemicals.${index}.segment`}

@@ -1,35 +1,14 @@
-import { useLayoutEffect, useRef } from 'react';
-
+import StringHasQuote from '~/components/ui/StringHasQuote';
 import Box from '@mui/material/Box';
 import grey from '@mui/material/colors/grey';
 
-import StringHasQuote from '~/components/ui/StringHasQuote';
-
 function Description({ data, references }) {
-    const containerRef = useRef(null)
-    
-    useLayoutEffect(() => {
-        const images = containerRef.current.querySelectorAll('img.image_resized');
-
-        images.forEach((image, idx) => {
-            const figure = document.createElement('figure');
-            figure.style.width = image.style.width;
-            
-            const caption = document.createElement('figcaption');
-            caption.innerText = `Hình ${idx + 1}`;
-            
-            image.style.width = '100%'
-            figure.appendChild(image.cloneNode(true));
-            figure.appendChild(caption);
-            image.parentNode.replaceChild(figure, image);
-        });
-    }, [])
 
     return (
-        <Box 
-            ref={containerRef}
+        <Box
             sx={{
-                '& p': {
+                '& div': {
+                    mb: 2,
                     textAlign: 'justify',
                     '& figure': {
                         my: 0
