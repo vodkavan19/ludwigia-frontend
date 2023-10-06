@@ -51,7 +51,6 @@ function SpeciesPage() {
                 )
             }
         )
-        console.log(replaceImg);
         return replaceImg;
     }
 

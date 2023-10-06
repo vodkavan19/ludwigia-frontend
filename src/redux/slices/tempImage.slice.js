@@ -10,7 +10,6 @@ const tempImageSlice = createSlice({
             state.editorImages.push(action.payload)
         },
         removeAllTempEditorImages(state) {
-            console.log('sj');
             state.editorImages = []
         },
     }
